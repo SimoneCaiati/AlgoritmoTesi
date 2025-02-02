@@ -1,38 +1,37 @@
 import numpy as np
-from scipy.fft import ifft
-from scipy.linalg import inv
 
-class KalmanFilter:
-    def __init__(self, F, H, Q, R, P, x0):
-        """
-        Inizializza il filtro di Kalman.
-        :param F: Matrice di transizione di stato.
-        :param H: Matrice di osservazione.
-        :param Q: Matrice di rumore di processo.
-        :param R: Matrice di rumore di osservazione.
-        :param P: Matrice di covarianza iniziale.
-        :param x0: Stato iniziale.
-        """
-        self.F = F  # Matrice di transizione
-        self.H = H  # Matrice di osservazione
-        self.Q = Q  # Rumore di processo
-        self.R = R  # Rumore di osservazione
-        self.P = P  # Covarianza
-        self.x = x0  # Stato iniziale
+class KalmanFilter(object):
+    def __init__(self, F = None, B = None, H = None, Q = None, R = None, P = None, x0 = None):
 
-    def predict(self):
-        """Fase di previsione."""
-        self.x = np.dot(self.F, self.x)
+        if(F is None or H is None):
+            raise ValueError("Set proper system dynamics.")
+
+        self.n = F.shape[1]
+        self.m = H.shape[1]
+
+        self.F = F
+        self.H = H
+        self.B = 0 if B is None else B
+        self.Q = np.eye(self.n) if Q is None else Q
+        self.R = np.eye(self.n) if R is None else R
+        self.P = np.eye(self.n) if P is None else P
+        self.x = np.zeros((self.n, 1)) if x0 is None else x0
+        self.I = np.eye(self.n)
+
+    def predict(self, u):
+        """Step di predizione"""
+        self.x = np.dot(self.F, self.x) + np.dot(self.B, u)
         self.P = np.dot(np.dot(self.F, self.P), self.F.T) + self.Q
+        return self.x
 
     def update(self, z):
-        """Fase di aggiornamento."""
-        y = z - np.dot(self.H, self.x)  # Residuo
-        S = np.dot(self.H, np.dot(self.P, self.H.T)) + self.R
-        K = np.dot(np.dot(self.P, self.H.T), inv(S))  # Guadagno di Kalman
-        self.x = self.x + np.dot(K, y)
-        self.P = self.P - np.dot(K, np.dot(self.H, self.P))
-
+        """"Step di aggiornamento"""
+        y = z - np.dot(self.H, self.x)
+        S = self.R + np.dot(np.dot(self.H,self.P) , self.H.T)
+        K = np.dot(np.dot(self.P, self.H.T), np.linalg.inv(S))
+        self.x = self.x + np.dot(self.R, y)
+        self.P = np.dot(self.I - np.dot(K, self.H), self.P)
+        	
     def get_state(self):
         """Ritorna lo stato corrente."""
         return self.x

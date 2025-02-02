@@ -25,7 +25,7 @@
     <Compile Include="AlgoritmoTesiDue.py" />
     <Compile Include="KalmanFilter.py" />
     <Compile Include="ProjectManager.py" />
-    <Compile Include="PositionGetterOneOrTwo.py" />
+    <Compile Include="PositionGetter.py" />
     <Compile Include="Visualizer.py" />
   </ItemGroup>
   <ItemGroup>

@@ -5,7 +5,7 @@ from scipy.signal import butter, filtfilt
 from ProjectManager import DirManager
 from KalmanFilter import KalmanFilter
 
-class PositionGetterOneOrTwo:
+class PositionGetter:
     
     def __init__(self,timestamp,accelerometerData,gyroscopeData,orientationData,magnetometer,sample_rate,file_index):
         self.timestamp=timestamp
@@ -170,29 +170,54 @@ class PositionGetterOneOrTwo:
         
     def applicateKalman(self):
         self.kalman_acc=np.empty((len(self.timestamp),3))
+        self.kalman_orient=np.empty((len(self.timestamp),3))
+        self.kalman_mag=np.empty((len(self.timestamp),3))
+
+        dt=1/self.sample_rate
         
         # Parametri iniziali del filtro di Kalman
-        F = np.eye(3)                   # Matrice di transizione
-        H = np.eye(3)                   # Matrice di osservazione
-        Q = np.eye(3) * 0.01            # Rumore di processo
-        R = np.eye(3) * 0.1             # Rumore di osservazione
-        P = np.eye(3)                   # Covarianza iniziale
-        x0 = np.zeros(3)                # Stato iniziale
+        
+        H = np.eye(9)                                   # Matrice di osservazione
+        Q = np.eye(9)                                   # Rumore di processo * 0.01
+        R = np.eye(9)                                   # Rumore di osservazione * 0.1  
+        P = np.eye(9)                                   # Covarianza iniziale
+        x0 = np.zeros(9)                                # Stato iniziale
 
-        kf = KalmanFilter(F, H, Q, R, P, x0)
+        # Matrice F
+        F = np.array([                                  # Matrice di transizione
+            [1, dt, 0, 0, 0, 0, 0.5 * dt**2, 0, 0],
+            [0, 1,  0, 0, 0, 0, dt, 0, 0],
+            [0, 0,  1, dt, 0, 0, 0, 0.5 * dt**2, 0],
+            [0, 0,  0, 1,  0, 0, 0, dt, 0],
+            [0, 0,  0, 0,  1, dt, 0, 0, 0.5 * dt**2],
+            [0, 0,  0, 0,  0, 1,  0, 0, dt],
+            [0, 0,  0, 0,  0, 0,  1, dt, 0],
+            [0, 0,  0, 0,  0, 0,  0, 1, dt],
+            [0, 0,  0, 0,  0, 0,  0, 0, 1]
+        ])
+        # Crea una matrice 9x9 di zeri
+        # Riempi la diagonale principale dei primi 6 elementi con 1
+        # Riempi la diagonale principale a partire dalla quarta riga con 1
+        B = np.zeros((9, 9))                            # Matrice di controllo           
+        np.fill_diagonal(B[:6, :6], 1)                  
+        np.fill_diagonal(B[3:, 3:], 1)                  
+
+        kf = KalmanFilter(F, B, H, Q, R, P, x0)
         
         for index in range(len(self.timestamp)):
             
             # Costruzione del vettore di osservazione z con dati già filtrati
-            z = np.array([self.Mag[index], self.Gyro[index], self.ifft_signal[index]])
+            z = np.array([self.ifft_signal[index,0],self.ifft_signal[index,1],self.ifft_signal[index,2],
+                          self.Orient[index,0],self.Orient[index,1],self.Orient[index,2],
+                          self.Mag[index,0],self.Mag[index,1],self.Mag[index,2]])
     
             # Previsione del filtro di Kalman
-            kf.predict()
+            kf.predict(z)
     
             # Aggiornamento del filtro di Kalman con i dati osservati
             kf.update(z)
     
             # Ricostruzione cinematiche
-            self.kalman_orient[index]=kf.get_state()[0]
-            self.kalman_mag[index]= kf.get_state()[1]
-            self.kalman_acc[index] = kf.get_state()[2]  # Accelerazione filtrata (dal filtro di Kalman)   
+            self.kalman_acc[index] = kf.get_state()[0:3]         
+            self.kalman_orient[index]=kf.get_state()[3:6]       
+            self.kalman_mag[index]= kf.get_state()[6:9]

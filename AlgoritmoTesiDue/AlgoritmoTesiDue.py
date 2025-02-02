@@ -1,11 +1,10 @@
-import pandas as pd 
-from PositionGetterOneOrTwo import PositionGetterOneOrTwo as pgot
+from PositionGetter import PositionGetter as pgot
 from Visualizer import Visualizer
 from ProjectManager import prepare_data
 
 directory="SensorLogger"
-test=False                                  # IMPOSTARE A TRUE PER FILE DI TEST
-file_index="Test_moto_trepassi_avanti_destra"
+test=True                                  # IMPOSTARE A TRUE PER FILE DI TEST
+file_index="Test_nuovo_moto_trepassi_avanti_destra"
 sample_rate=100
 
 DataFrame=prepare_data(directory,file_index)
