@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>56e9a13d-8cf9-499e-9b07-3eb4c8a1c9e1</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>AlgoritmoTesiDue.py</StartupFile>
+    <StartupFile>Test\test_position_getter.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -26,10 +26,16 @@
     <Compile Include="KalmanFilter.py" />
     <Compile Include="ProjectManager.py" />
     <Compile Include="PositionGetter.py" />
+    <Compile Include="Test\test_position_getter.py" />
+    <Compile Include="Test\__init__.py" />
     <Compile Include="Visualizer.py" />
+    <Compile Include="__init__.py" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|VisualStudio|AmbienteTesi" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Test\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

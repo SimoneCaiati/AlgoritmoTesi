@@ -4,7 +4,7 @@ from ProjectManager import prepare_data
 
 directory="SensorLogger"
 test=True                                  # IMPOSTARE A TRUE PER FILE DI TEST
-file_index="Test_nuovo_moto_trepassi_avanti_destra"
+file_index="Test_Data_withoutOrientation"
 sample_rate=100
 
 DataFrame=prepare_data(directory,file_index)

@@ -3,8 +3,8 @@ import pandas as pd
 import numpy as np
 class DirManager:
     def __init__(self, base_dir, file_index):
-        self.file_PD_Dir = os.path.join(base_dir, "PositionalDatas", file_index)
-        self.mediaDir = os.path.join( "Media", file_index)
+        self.file_PD_Dir = os.path.join(base_dir, "PositionalDatas", str(file_index))
+        self.mediaDir = os.path.join( "Media", str(file_index))
         self.fastFourierDir = os.path.join(self.mediaDir, "FastFourierPlots")
         self.create_directories()
 

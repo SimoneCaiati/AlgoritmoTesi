@@ -17,16 +17,17 @@ class PositionGetter:
         self.file_index=file_index
         self.directory="SensorLogger"
         
-        self.file_manager= DirManager(self.directory,self.file_index)
+        if self.file_index != '0':                                      # '0' è il file_index dei test
+            self.file_manager= DirManager(self.directory,self.file_index)
 
     def processData(self):
         self.getELA()
         self.identify_moving_periods()
         self.getPositionData(self.earthAcc,"PositionalData1")
-        self.fastFourierTransform()                                     
-        self.getPositionData(self.ifft_signal,"PositionalData2")  
-        self.applicateKalman()
-        self.getPositionData(self.kalman_acc,"PositionalData3") 
+        #self.fastFourierTransform()                                     
+        #self.getPositionData(self.ifft_signal,"PositionalData2")  
+        #self.applicateKalman()
+        #self.getPositionData(self.kalman_acc,"PositionalData3") 
 
     # metodo che mi consente di ottenere l'accelerazione terrestre atraverso il prodotto matriacale delle matrici rotazionali (pitch,roll,yaw) e l'accelerazione lineare
     def getELA(self):
@@ -94,7 +95,7 @@ class PositionGetter:
                
         for index in range(len(self.timestamp)):
             if self.is_moving[index]:
-                self.position[index] =self.delta_time[index] * self.velocity[index] + accelerazione[index]*(self.delta_time[index]**2) # nella legge oraria andrebbe anche considerata la posizione iniziale 
+                self.position[index] =self.delta_time[index] * self.velocity[index] + (0.5*accelerazione[index]*(self.delta_time[index]**2)) # nella legge oraria andrebbe anche considerata la posizione iniziale 
         print(f"Positional data:\n{self.position}")
         PositionDataFrame=pd.DataFrame(self.position)
         self.file_manager.save_position_data(PositionDataFrame, stringa)
@@ -123,7 +124,8 @@ class PositionGetter:
         plt.xlabel("Tempo (s)")
         plt.ylabel("Accelerazione lineare terrestre")
         plt.legend()
-        plt.savefig(self.file_manager.fastFourierDir + "/" + "Accelerazione_lineare_terrestre.png")
+        if self.file_index != '0':                                      # '0' è il file_index dei test
+            plt.savefig(self.file_manager.fastFourierDir + "/" + "Accelerazione_lineare_terrestre.png")
         plt.show()
 
         # Applicazione della FFT per ciascun asse
@@ -139,7 +141,8 @@ class PositionGetter:
         plt.xlabel("Frequenza (Hz)")
         plt.ylabel("Ampiezza")
         plt.legend()
-        plt.savefig(self.file_manager.fastFourierDir + "/" + "Spettro_frequenza_accelerazione.png")
+        if self.file_index != '0':                                      # '0' è il file_index dei test
+            plt.savefig(self.file_manager.fastFourierDir + "/" + "Spettro_frequenza_accelerazione.png")
         plt.show()
 
         # Parametri del filtro
@@ -163,7 +166,8 @@ class PositionGetter:
         plt.xlabel("Tempo (s)")
         plt.ylabel("Accelerazione")
         plt.legend()
-        plt.savefig(self.file_manager.fastFourierDir + "/" + "Segnale_Filtrato_IFFT.png")
+        if self.file_index != '0':                                      # '0' è il file_index dei test
+            plt.savefig(self.file_manager.fastFourierDir + "/" + "Segnale_Filtrato_IFFT.png")
         plt.grid()
         plt.show()
 
