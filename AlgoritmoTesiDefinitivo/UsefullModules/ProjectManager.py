@@ -6,11 +6,10 @@ class DirManager:
         self.specificPD=specificPD
         if not test:
             self.mediaDir = os.path.join( "Media", str(file_index), specificPD)
-            self.file_PD_Dir = os.path.join(base_dir, "PositionalDatas", str(file_index))
-            self.fastFourierDir = os.path.join(self.mediaDir, "FastFourierPlots")
-            self.create_directories()
         else:
             self.mediaDir = os.path.join( "MediaTest", str(file_index), specificPD)
+        self.file_PD_Dir = os.path.join(base_dir, "PositionalDatas", str(file_index))
+        self.fastFourierDir = os.path.join(self.mediaDir, "FastFourierPlots")
 
     def create_directories(self):
         os.makedirs(self.file_PD_Dir, exist_ok=True)

@@ -21,19 +21,21 @@ class PositionalDatas1(PositionalData):
 
         for index in range(len(self.timestamp)):
             # matrice pitch rotazionale 
-            matA=np.array([[np.cos(self.Orient[index,0]),-np.sin(self.Orient[index,0]),0],
-                            [np.sin(self.Orient[index,0]),np.cos(self.Orient[index,0]),0],
-                            [0,0,1]])
+            matX = np.array([[1, 0, 0],
+                [0, np.cos(self.Orient[index,0]), np.sin(self.Orient[index,0])], 
+                [0, -np.sin(self.Orient[index,0]), np.cos(self.Orient[index,0])]])
+
             # matrice roll rotazionale
-            matB=np.array([[np.cos(self.Orient[index,1]),0,np.sin(self.Orient[index,1])],
-                            [0,1,0],
-                            [-np.sin(self.Orient[index,1]),0,np.cos(self.Orient[index,1])]])
+            matY=np.array([[np.cos(self.Orient[index,1]), 0, np.sin(self.Orient[index,1])],
+                [0, 1, 0],
+                [-np.sin(self.Orient[index,1]), 0, np.cos(self.Orient[index,1])]])
             # matrice yaw rotazionale
-            matC=np.array([[1,0,0],
-                            [0,np.cos(self.Orient[index,2]),-np.sin(self.Orient[index,2])],
-                            [0,np.sin(self.Orient[index,2]),np.cos(self.Orient[index,2])]])
+            matZ=np.array([[np.cos(self.Orient[index,2]), -np.sin(self.Orient[index,2]), 0],
+                [np.sin(self.Orient[index,2]), np.cos(self.Orient[index,2]), 0],
+                [0, 0, 1]])
             
-            matR = matC @ matB @ matA  # matrice rotazionale
+            matR =matX @ matY @ matZ # matrice rotazionale
+            print(matR)
 
             # Trasformazione dell'accelerazione nel sistema terrestre
             self.earthAcc[index] = matR @ self.Acc[index]

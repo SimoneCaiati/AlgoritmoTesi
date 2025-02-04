@@ -8,38 +8,15 @@ from PositionGetters.PositionalData import PositionalData
 # Creazione di dati di test finti
 @pytest.fixture
 def fake_data():
-    directory = "SensorLogger"
-    file_index = "Test_DataDue"
-    sample_rate = 100
-    specificPD="0"
+    timestamp = np.linspace(0, 10, 100)  # Simuliamo 100 campioni in 10 secondi
+    acc = np.zeros((100, 3))  # Nessuna accelerazione 
+    orient = np.zeros((100, 3))
+    sample_rate = 10  # 10 Hz
+    file_index = '0'
+    directory='0'
+    specificPD='0'
 
-    # Costruzione del percorso corretto
-    csv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', directory, 'file_uniti', f"{file_index}.csv"))
-
-    print(f"Sto cercando il file in: {csv_path}")  # Debug del percorso
-
-    try:
-        DataFrame = pd.read_csv(csv_path, delimiter=',', na_values=[''], encoding="utf-8")
-    except FileNotFoundError:
-        pytest.fail(f"Errore: il file CSV {csv_path} non esiste.")
-
-    # Rimuove spazi bianchi e converte i dati a numerico
-    DataFrame = DataFrame.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-    DataFrame = DataFrame.apply(pd.to_numeric, errors='coerce')
-
-    # Controlla se ci sono dati mancanti
-    if DataFrame.isna().sum().sum() > 0:
-        print("Attenzione: il dataset contiene valori NaN.")
-
-    DataFrame = DataFrame.to_numpy()
-
-    # Estrarre i dati
-    timestamp = DataFrame[:, 0]
-    accelerometerData = DataFrame[:, 1:4]
-    gyroscopeData = DataFrame[:, 7:10]
-    orientationData = DataFrame[:, 4:7]
-
-    return timestamp, accelerometerData, orientationData, sample_rate, file_index, directory, specificPD
+    return timestamp, acc, orient, sample_rate, file_index, directory, specificPD
 
 # 1.Test del costruttore (__init__)
 def test_init(fake_data):

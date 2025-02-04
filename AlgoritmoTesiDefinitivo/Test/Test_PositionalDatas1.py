@@ -24,8 +24,8 @@ def sample_data():
     ])  # Orientazione in radianti
 
     sample_rate = 10  # 10 Hz
-    file_index = '0'
-    directory = "0"
+    file_index = 'TestFakeDataPD1'
+    directory = "MediaTest"
 
     return timestamp, accelerometerData, orientationData, sample_rate, file_index, directory
 # 1.Test __init__
@@ -85,7 +85,7 @@ def test_getELA_delta_time_consistency(sample_data):
                   (pd1.delta_time[1:] <= expected_dt + tolerance)), \
         f"Delta time fuori range: valori minimi {pd1.delta_time.min()}, massimi {pd1.delta_time.max()}"
 
-    # 11.Test del metodo getPosition: verifico in caso di accelerazione costante che la posizione incrementi col quadrato del tempo (legge oraria)
+# 6.Test del metodo getPosition: verifico in caso di accelerazione costante che la posizione incrementi col quadrato del tempo (legge oraria)
 def test_getPositionData_linear_motion():
     
     timestamp = np.linspace(0, 10, 100)  # 100 campioni in 10 secondi
@@ -118,7 +118,7 @@ def test_getPositionData_linear_motion():
     
     np.testing.assert_almost_equal(pg.position, expected_position, decimal=2)
     
-
+# 7.Test getEla: verifico per una rotazione su ogni asse se mi restituisce il valore corretto atteso
 def test_getELA(sample_data):
     """Test del metodo getELA()"""
     timestamp, accelerometerData, orientationData, sample_rate, file_index, directory = sample_data

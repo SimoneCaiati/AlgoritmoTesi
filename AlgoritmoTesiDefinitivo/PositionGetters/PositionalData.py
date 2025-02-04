@@ -64,8 +64,8 @@ class PositionalData:
         print(f"Positional data:\n{self.position}")
         PositionDataFrame=pd.DataFrame(self.position)
         self.visualizer.position=self.position.copy()                           # sovrascrivo il vettore posizione del visualizer, che è impostato a None di default 
-        
-        self.file_manager.save_position_data(PositionDataFrame, stringa)
+        if not test:
+            self.file_manager.save_position_data(PositionDataFrame, stringa)
 
     def plotGraphics(self, nome_acc, nome_orient ,Acc, Orient):
         self.visualizer.plot_path()

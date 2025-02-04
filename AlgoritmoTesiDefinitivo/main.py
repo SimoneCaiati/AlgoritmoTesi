@@ -23,10 +23,13 @@ magnetometerData=datapicked[:,10:13]
 barometerData=datapicked[:,13:15]
 
 p_d1= pd1(timestamp, accelerometerData, orientationData, sample_rate, file_index, directory, False)                            # 1° BLOCCO
+p_d1.file_manager.create_directories()
 p_d1.processData()
 
 p_d2= pd2(timestamp, p_d1.earthAcc, orientationData, sample_rate, file_index, directory, False)                                # 2° BLOCCO
+p_d2.file_manager.create_directories()
 p_d2.processData()
 
 p_d3= pd3(timestamp, p_d2.ifft_signal, orientationData, sample_rate, file_index, directory, False, magnetometerData)           # 3° BLOCCO
+p_d3.file_manager.create_directories()
 p_d3.processData()
