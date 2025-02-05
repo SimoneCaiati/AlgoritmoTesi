@@ -27,8 +27,8 @@ class PositionalData:
         margin=1
         
         magnitudes = np.sqrt(np.sum(accelerazione**2, axis=1))  # accelerazione risultante
-        print(f"Magnitudine:\n{magnitudes}")
-        print(f"massimo: {np.max(magnitudes)} media: {np.mean(magnitudes)} minimo: {np.min(magnitudes)}")
+        #print(f"Magnitudine:\n{magnitudes}")
+        #print(f"massimo: {np.max(magnitudes)} media: {np.mean(magnitudes)} minimo: {np.min(magnitudes)}")
         
         for index in range(len(self.timestamp)):
             print(np.sqrt(accelerazione[index].dot(self.Acc[index])))
@@ -42,7 +42,7 @@ class PositionalData:
 
         for index in range(len(self.timestamp) - 1, margin, -1):
             self.is_moving[index] = any(self.is_moving[(index - margin):index])  # add trailing margin
-        print(f"movimento per timesample:\n{self.is_moving}")
+        #print(f"movimento per timesample:\n{self.is_moving}")
     
 
     # METODO CHE SULLA BASE DELL'ACCELERAZIONE RICEVUTA IN INPUT E LA STRINGA CORRISPONDENTE GENERA I PD1, PD2 O PD3

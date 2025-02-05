@@ -16,9 +16,9 @@ class PositionalDatas1(PositionalData):
     # metodo che mi consente di ottenere l'accelerazione terrestre atraverso il prodotto matriacale delle matrici rotazionali (pitch,roll,yaw) e l'accelerazione lineare
     def getELA(self):
         self.earthAcc=np.empty((len(self.timestamp),3))
-        print(f"vettore delta time:\n{self.delta_time}")
-        print(f"massimo valore di delta time:{self.delta_time[1:].max()} e minimo:{self.delta_time[1:].min()}")
-
+        #print(f"vettore delta time:\n{self.delta_time}")
+        #print(f"massimo valore di delta time:{self.delta_time[1:].max()} e minimo:{self.delta_time[1:].min()}")
+        print(f"Accelerazione prima:\n{self.Acc}")
         for index in range(len(self.timestamp)):
             # matrice pitch rotazionale 
             matX = np.array([[1, 0, 0],
@@ -34,11 +34,12 @@ class PositionalDatas1(PositionalData):
                 [np.sin(self.Orient[index,2]), np.cos(self.Orient[index,2]), 0],
                 [0, 0, 1]])
             
-            matR =matX @ matY @ matZ # matrice rotazionale
-            print(matR)
+            matR =matZ @ matX @ matY          # matrice rotazionale
+            matR = np.round(matR, decimals=10)  # Arrotondamento per evitare errori numerici
+            #print(matR)
 
             # Trasformazione dell'accelerazione nel sistema terrestre
             self.earthAcc[index] = matR @ self.Acc[index]
-        print(f"Accelerazione terrestre:\n{self.earthAcc}")
+        print(f"Accelerazione terrestre dopo:\n{self.earthAcc}")
 
 
