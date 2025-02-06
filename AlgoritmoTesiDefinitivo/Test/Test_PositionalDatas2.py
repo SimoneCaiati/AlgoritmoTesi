@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 import matplotlib.pyplot as plt
 from PositionGetters.PositionalDatas2 import PositionalDatas2
+from scipy.fft import fft, ifft, fftfreq
 
 TestPath="../AlgoritmoTesiDefinitivo/MediaTest/"
 
@@ -205,6 +206,116 @@ def test_butter_lowpass_filter_ramp_signal_response(positional_data_instance2):
     plt.grid()
     plt.savefig(TestPath + "test6filtro_Derivata_Numerica_Prima_e_Dopo_Filtraggio.png")
     plt.show()
+   
+# 8.Test filtro: verifico il comportamento del filtro aglli estremi dell'ordine, per verificare che non vengano generati dei ringing sostenuti
+def test_butter_lowpass_filter_stability_and_behavior_extreme_orders(positional_data_instance2):
+    fs = 1000  # Frequenza di campionamento (Hz)
+    cutoff = 50  # Frequenza di cutoff (Hz)
+    t = np.linspace(0, 1, fs, endpoint=False)  # 1 secondo di dati
+    signal = np.sin(2 * np.pi * 10 * t)  # Segnale sinusoidale a 10 Hz (sotto il cutoff, dovrebbe passare senza problemi)
+    data = signal.reshape(-1, 1)  # Converti in formato compatibile
+
+    # Applica il filtro con ordine 1
+    filtered_data_order_1 = positional_data_instance2.butter_lowpass_filter(data, cutoff=cutoff, fs=fs, order=1)
+
+    # Applica il filtro con ordine 10
+    filtered_data_order_10 = positional_data_instance2.butter_lowpass_filter(data, cutoff=cutoff, fs=fs, order=10) # potrebbe generare ringing
+
+    # --- Verifico ---
+    # che l'ordine 1 non introduca oscillazioni
+    # piuttosto che verificare localmente il segnale con la derivata, controllo la differenza tra segnale originale e quello filtrato (controllo globale)
+    max_relative_difference = np.max(np.abs(filtered_data_order_1[:, 0] - data[:, 0])) 
+    assert max_relative_difference < 0.05
+
+    # che l'ordine 10 non renda il segnale instabile
+    assert np.all(np.isfinite(filtered_data_order_10))
+
+    # --- PLOTTING ---
+    plt.figure(figsize=(10, 4))
+    plt.plot(t, data[:, 0], label="Segnale Originale", alpha=0.5)
+    plt.plot(t, filtered_data_order_1[:, 0], label="Filtro Order=1", linewidth=2)
+    plt.plot(t, filtered_data_order_10[:, 0], label="Filtro Order=10", linewidth=2)
+    plt.title("Comportamento del Filtro con Ordini Estremi")
+    plt.xlabel("Tempo (s)")
+    plt.ylabel("Ampiezza")
+    plt.legend()
+    plt.grid()
+    plt.savefig(TestPath + "test7filtro_Comportamento_del_Filtro_con_Ordini_Estremi.png")
+    plt.show()
+    
+# 9.Test filtro: verifico con un segnale noto se il filtro aggiunge o meno distorsioni di fase
+def test_butter_lowpass_filter_no_phase_distortion(positional_data_instance2):
+    # Generazione di un segnale di test
+    fs = 100  # Frequenza di campionamento (Hz)
+    t = np.linspace(0, 10, fs * 10)  # 10 secondi di dati
+    f1, f2 = 1, 10  # Frequenze principali del segnale
+    
+    # SEGNALI DI TEST DIVERSI
+    # 0.Segnale di prova con due componenti sinusoidali
+    original_signal = np.column_stack([
+        np.sin(2 * np.pi * f1 * t) + np.sin(2 * np.pi * f2 * t),
+        np.sin(2 * np.pi * f1 * t) + np.sin(2 * np.pi * f2 * t),
+        np.sin(2 * np.pi * f1 * t) + np.sin(2 * np.pi * f2 * t)
+    ])
+    
+    # 1. Segnale con componente ad alta frequenza
+    f1, f2 = 1, 20  # Frequenze diverse, una sopra il cutoff
+    high_freq_signal = np.column_stack([
+        np.sin(2 * np.pi * f1 * t) + np.sin(2 * np.pi * f2 * t),
+        np.sin(2 * np.pi * f1 * t) + np.sin(2 * np.pi * f2 * t),
+        np.sin(2 * np.pi * f1 * t) + np.sin(2 * np.pi * f2 * t)
+    ])
+
+    # 2. Segnale impulsivo (onda quadra)
+    impulse_signal = np.sign(np.sin(2 * np.pi * f1 * t))
+    impulse_signal = np.column_stack([impulse_signal, impulse_signal, impulse_signal])
+
+    # 3. Rumore bianco
+    np.random.seed(42)
+    noise_signal = np.random.normal(0, 1, (len(t), 3))
+
+    # 4. Segnale modulato AM
+    carrier_freq = 10  # Portante a 10 Hz
+    modulating_freq = 1  # Modulante a 1 Hz
+    am_signal = (1 + 0.5 * np.sin(2 * np.pi * modulating_freq * t)) * np.sin(2 * np.pi * carrier_freq * t)
+    am_signal = np.column_stack([am_signal, am_signal, am_signal])
+    
+    # Applicazione del filtro
+    cutoff = 5  # Frequenza di taglio in Hz
+    
+    # Test su diversi segnali
+    for signal, title in zip([original_signal, high_freq_signal, impulse_signal, noise_signal, am_signal],
+                         ["Segnale sinusoidale","High Frequency Signal", "Impulse Signal", "White Noise", "AM Signal"]):
+        filtered_signal = positional_data_instance2.butter_lowpass_filter(signal, cutoff, fs)
+
+        # FFT del segnale filtrato
+        fft_signal = fft(filtered_signal, axis=0)
+
+        # IFFT per tornare nel dominio del tempo
+        ifft_signal = np.real(ifft(fft_signal, axis=0))
+
+        # Verifica della distorsione di fase
+        plt.figure(figsize=(10, 5))
+        plt.plot(t, signal[:, 0], label='Original Signal', linestyle='dashed', alpha=0.7)
+        plt.plot(t, ifft_signal[:, 0], label='Reconstructed Signal (IFFT)', linewidth=2)
+        plt.title(f"Phase Distortion Check:{title}")
+        plt.xlabel("Time (s)")
+        plt.ylabel("Amplitude")
+        plt.legend()
+        plt.grid()
+        plt.savefig(TestPath + "test8filtro_Distorsioni_di_fase.png")
+        plt.show()
+
+        # Calcolo della differenza di fase tra il segnale originale e quello ricostruito
+        diff_phase = original_signal - ifft_signal
+        phase_shift = np.mean(diff_phase, axis=0)  # Media delle differenze per ogni asse
+
+        print("Phase Shift Analysis:", phase_shift)
+        # Assert per verificare che la distorsione di fase sia contenuta entro un margine accettabile
+        assert np.all(np.abs(phase_shift) < 0.1), f"Phase shift too large for {title}: {phase_shift}"
+
+
+
 
 
 

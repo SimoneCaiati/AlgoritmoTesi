@@ -9,26 +9,25 @@ class PositionalDatas3(PositionalData):
     def processData(self):
         self.identify_moving_periods(self.Acc)
         self.applicateKalman()
-        self.getPositionData(self.Acc,"PositionalData3")
+        self.getPositionData(self.kalman_acc,"PositionalData3")
         self.plotGraphics("Accelerazione_after_Kalman","Angoli_after_Kalman",self.kalman_acc,self.kalman_orient)
-
+        
     def applicateKalman(self):
-        self.kalman_acc=np.empty((len(self.timestamp),3))
-        self.kalman_orient=np.empty((len(self.timestamp),3))
-        self.kalman_mag=np.empty((len(self.timestamp),3))
+        num_samples = len(self.timestamp)
+    
+        self.kalman_acc = np.empty((num_samples, 3))
+        self.kalman_orient = np.empty((num_samples, 3))
+        self.kalman_mag = np.empty((num_samples, 3))
 
-        dt=1/self.sample_rate
-        
-        # Parametri iniziali del filtro di Kalman
-        
-        H = np.eye(9)                                   # Matrice di osservazione
-        Q = np.eye(9)                                   # Rumore di processo * 0.01
-        R = np.eye(9)                                   # Rumore di osservazione * 0.1  
-        P = np.eye(9)                                   # Covarianza iniziale
-        x0 = np.zeros(9)                                # Stato iniziale
+        dt = 1 / self.sample_rate  
 
-        # Matrice F
-        F = np.array([                                  # Matrice di transizione
+        H = np.eye(9)  
+        Q = np.eye(9) * 0.1  # Aumentato per maggiore reattività
+        R = np.eye(9) * 0.01  # Ridotto per dare più peso alle osservazioni
+        P = np.eye(9) * 10  # Inizializzato più alto per consentire adattabilità
+        x0 = np.zeros(9)  
+
+        F = np.array([
             [1, dt, 0, 0, 0, 0, 0.5 * dt**2, 0, 0],
             [0, 1,  0, 0, 0, 0, dt, 0, 0],
             [0, 0,  1, dt, 0, 0, 0, 0.5 * dt**2, 0],
@@ -39,33 +38,26 @@ class PositionalDatas3(PositionalData):
             [0, 0,  0, 0,  0, 0,  0, 1, dt],
             [0, 0,  0, 0,  0, 0,  0, 0, 1]
         ])
-        # Crea una matrice 9x9 di zeri
-        # Riempi la diagonale principale dei primi 6 elementi con 1
-        # Riempi la diagonale principale a partire dalla quarta riga con 1
-        B = np.zeros((9, 9))                            # Matrice di controllo           
-        np.fill_diagonal(B[:6, :6], 1)                  
-        np.fill_diagonal(B[3:, 3:], 1)                  
+        
+        F += np.eye(F.shape[0]) * 1e-3  # Aggiunto smorzamento per stabilità
+    
+        B = np.zeros((9, 9))
+        np.fill_diagonal(B[:6, :6], 1)
+        np.fill_diagonal(B[3:, 3:], 1)
 
         kf = KalmanFilter(F, B, H, Q, R, P, x0)
-        
-        for index in range(len(self.timestamp)):
-            
-            # Costruzione del vettore di osservazione z con dati già filtrati
-            z = np.array([self.Acc[index,0],self.Acc[index,1],self.Acc[index,2],
-                          self.Orient[index,0],self.Orient[index,1],self.Orient[index,2],
-                          self.Mag[index,0],self.Mag[index,1],self.Mag[index,2]])
-    
-            # Previsione del filtro di Kalman
-            kf.predict(z)
-    
-            # Aggiornamento del filtro di Kalman con i dati osservati
-            kf.update(z)
-    
-            # Ricostruzione cinematiche
-            self.kalman_acc[index] = kf.get_state()[0:3]         
-            self.kalman_orient[index]=kf.get_state()[3:6]       
-            self.kalman_mag[index]= kf.get_state()[6:9]
 
+        for index in range(num_samples):
+            z = np.concatenate((self.Acc[index], self.Orient[index], self.Mag[index]))
+            kf.predict()
+            kf.update(z)
+            #print(kf.get_state())
+            self.kalman_acc[index] = kf.get_state()[0,0:3]
+            self.kalman_orient[index] = kf.get_state()[0,3:6]
+            self.kalman_mag[index] = kf.get_state()[0,6:9]
+
+        print("Varianza originale Acc:", np.var(self.Acc, axis=0))
+        print("Varianza filtrata Acc:", np.var(self.kalman_acc, axis=0))
 
 class KalmanFilter(object):
     def __init__(self, F = None, B = None, H = None, Q = None, R = None, P = None, x0 = None):
@@ -85,21 +77,25 @@ class KalmanFilter(object):
         self.x = np.zeros((self.n, 1)) if x0 is None else x0
         self.I = np.eye(self.n)
 
-    def predict(self, u):
-        """Step di predizione"""
+    def predict(self, u=0):
         self.x = np.dot(self.F, self.x) + np.dot(self.B, u)
         self.P = np.dot(np.dot(self.F, self.P), self.F.T) + self.Q
         return self.x
 
     def update(self, z):
-        """"Step di aggiornamento"""
-        y = z - np.dot(self.H, self.x)
-        S = self.R + np.dot(np.dot(self.H,self.P) , self.H.T)
-        K = np.dot(np.dot(self.P, self.H.T), np.linalg.inv(S))
-        self.x = self.x + np.dot(self.R, y)
-        self.P = np.dot(self.I - np.dot(K, self.H), self.P)
-        	
-    def get_state(self):
-        """Ritorna lo stato corrente."""
-        return self.x
+        y = z - np.dot(self.H, self.x)  
+        S = self.R + np.dot(np.dot(self.H, self.P), self.H.T)  
+    
+        if np.linalg.det(S) == 0:
+            S += np.eye(S.shape[0]) * 1e-3  # Maggiore stabilità numerica
+    
+        K = np.dot(np.dot(self.P, self.H.T), np.linalg.inv(S))  
 
+        self.x = self.x + np.dot(K, y)
+
+        self.P = (self.I - np.dot(K, self.H)) @ self.P + np.eye(self.n) * 0.005  # Maggiore stabilità
+
+        self.P = (self.P + self.P.T) / 2  
+
+    def get_state(self):
+        return self.x

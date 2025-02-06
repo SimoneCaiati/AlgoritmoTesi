@@ -4,7 +4,7 @@ from PositionGetters.PositionalDatas2 import PositionalDatas2 as pd2
 from PositionGetters.PositionalDatas3 import PositionalDatas3 as pd3
 
 directory="SensorLogger"
-file_index="wait2_trepassi_drittodestra_wait2"
+file_index="Test_moto_rettilineo_acc_noisy_01"
 sample_rate=100
 
 DataFrame=prepare_data(directory,file_index)
@@ -30,6 +30,6 @@ p_d2= pd2(timestamp, p_d1.earthAcc, orientationData, sample_rate, file_index, di
 p_d2.file_manager.create_directories()
 p_d2.processData()
 
-p_d3= pd3(timestamp, p_d2.ifft_signal, orientationData, sample_rate, file_index, directory, False, magnetometerData)           # 3° BLOCCO
+p_d3= pd3(timestamp, p_d2.ifft_signal, orientationData, sample_rate, file_index, directory, False, magnetometerData)          # 3° BLOCCO
 p_d3.file_manager.create_directories()
 p_d3.processData()

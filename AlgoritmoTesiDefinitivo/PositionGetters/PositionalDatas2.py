@@ -12,7 +12,7 @@ class PositionalDatas2(PositionalData):
     def processData(self):
         self.identify_moving_periods(self.Acc)
         self.fastFourierTransform()
-        self.getPositionData(self.Acc,"PositionalData2")
+        self.getPositionData(self.ifft_signal,"PositionalData2")
         self.plotGraphics("Accelerazione_after_IFFT","Angoli_di_Eulero",self.ifft_signal,self.Orient)
 
     # FILTRO PASSA-BASSO PER FILTRARE I DATI 
@@ -88,6 +88,9 @@ class PositionalDatas2(PositionalData):
         if self.file_index != '0':
             plt.savefig(self.file_manager.fastFourierDir + "/" + "Segnale_Filtrato_Butterworth.png")
         plt.show()
+
+
+
 
 
 
