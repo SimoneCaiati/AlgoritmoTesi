@@ -1,5 +1,6 @@
-import pytest
+ï»¿import pytest
 import numpy as np
+import matplotlib.pyplot as plt
 from PositionGetters.PositionalDatas3 import PositionalDatas3, KalmanFilter  # Sostituisci con il modulo corretto
 
 TestPath="../AlgoritmoTesiDefinitivo/MediaTest/"
@@ -97,7 +98,7 @@ def test_kalman_initial_state():
     kf = KalmanFilter(F, B, H, Q, R, P, x0)
     assert np.allclose(kf.get_state(), np.full(9, 2.0))
 
-# 5.Test kalman: verifico l'effetto di covarianze iniziali grandi e piccole sulla stabilità del filtro
+# 5.Test kalman: verifico l'effetto di covarianze iniziali grandi e piccole sulla stabilitÃ  del filtro
 def test_kalman_covariance_variations():
     
     F = np.eye(9)
@@ -114,7 +115,7 @@ def test_kalman_covariance_variations():
     P_small = np.eye(9) * 0.0001
     kf_small = KalmanFilter(F, B, H, Q, R, P_small, np.zeros(9))
     
-    # Controlliamo che la covarianza grande faccia convergere più lentamente
+    # Controlliamo che la covarianza grande faccia convergere piÃ¹ lentamente
     for _ in range(50):
         kf_large.predict(np.zeros(9))
         kf_large.update(np.full(9, 1.0))
@@ -166,7 +167,7 @@ def test_kalman_varying_observations():
     
     assert np.abs(kf.get_state()[0]) < 1.0
    
-# 8.Test kalman: verifico il comportamento del filtro con sistema divergente per verificare la stabilità    
+# 8.Test kalman: verifico il comportamento del filtro con sistema divergente per verificare la stabilitÃ     
 def test_kalman_diverging_system():
     
     F = np.eye(9) * 1.1  # Fattore di crescita che simula una dinamica instabile
@@ -230,13 +231,13 @@ def test_kalman_low_information():
     
     assert np.linalg.norm(kf.get_state() - z) < 0.1
 
-# 11.Test kalman: verifico il comportamento del filtro con cambiamenti improvvisi nelle misure per verificare la reattività
+# 11.Test kalman: verifico il comportamento del filtro con cambiamenti improvvisi nelle misure per verificare la reattivitÃ 
 def test_kalman_shock_input():
     
     F = np.eye(9)
     B = np.eye(9)
     H = np.eye(9)
-    Q = np.eye(9) * 1.0  # Aumentiamo il rumore di processo per migliorare la reattività
+    Q = np.eye(9) * 1.0  # Aumentiamo il rumore di processo per migliorare la reattivitÃ 
     R = np.eye(9) * 0.5  # Aumentiamo il rumore di osservazione per bilanciare
     P = np.eye(9)
     x0 = np.zeros(9)
@@ -248,13 +249,13 @@ def test_kalman_shock_input():
         kf.update(np.zeros(9))
     
     shock = np.full(9, 100.0)
-    for _ in range(5):  # Iteriamo più volte per consentire la convergenza
+    for _ in range(5):  # Iteriamo piÃ¹ volte per consentire la convergenza
         kf.predict(np.zeros(9))
         kf.update(shock)
     
     assert np.linalg.norm(kf.get_state() - shock) < 20
 
-# 12.Test kalman: verifico il comportamento del filtro con elevato rumore per verificare la stabilità del filtro
+# 12.Test kalman: verifico il comportamento del filtro con elevato rumore per verificare la stabilitÃ  del filtro
 def test_kalman_high_noise():
     
     F = np.eye(9)
@@ -274,7 +275,7 @@ def test_kalman_high_noise():
     
     assert np.linalg.norm(kf.get_state()) < 100
 
-# 13.Test kalman: verifico il comportamento del filtro con traiettoria complessa per verificare la capacità di tracking
+# 13.Test kalman: verifico il comportamento del filtro con traiettoria complessa per verificare la capacitÃ  di tracking
 def test_kalman_complex_trajectory():
    
     F = np.eye(9)
@@ -316,8 +317,7 @@ def test_kalman_performance():
     
     assert end_time - start_time < 1.0
 
-# Testa se il filtro di Kalman è applicato correttamente 
-import matplotlib.pyplot as plt
+# 15.Test kalman: verifico che la deviazione stanard fra i dati risultatnti e quelli originali vari
 
 def test_applicateKalman(positional_data_instance):
     """Testa se il filtro di Kalman riduce il rumore in modo efficace senza smussare troppo il segnale, visualizzando i dati."""

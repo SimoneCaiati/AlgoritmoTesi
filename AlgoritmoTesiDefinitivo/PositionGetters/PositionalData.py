@@ -16,6 +16,7 @@ class PositionalData:
         self.directory=directory
         self.position=None
         self.delta_time = np.diff(self.timestamp, prepend=self.timestamp[0])
+        self.test=test
         
         self.file_manager= DirManager(self.directory, self.file_index, specificPD, test)
         self.visualizer=Visualizer(self.position, self.timestamp, self.file_manager.mediaDir)
@@ -64,7 +65,7 @@ class PositionalData:
         print(f"Positional data:\n{self.position}")
         PositionDataFrame=pd.DataFrame(self.position)
         self.visualizer.position=self.position.copy()                           # sovrascrivo il vettore posizione del visualizer, che è impostato a None di default 
-        if not test:
+        if not self.test:
             self.file_manager.save_position_data(PositionDataFrame, stringa)
 
     def plotGraphics(self, nome_acc, nome_orient ,Acc, Orient):
