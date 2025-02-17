@@ -11,7 +11,7 @@ class PositionalDatas3(PositionalData):
         self.identify_moving_periods(self.Acc)
         self.applicateKalman()
         self.getPositionData(self.kalman_acc,"PositionalData3")
-        self.plotGraphics("Accelerazione_after_Kalman","Angoli_after_Kalman",self.kalman_acc,self.kalman_orient)
+        #self.plotGraphics("Accelerazione_after_Kalman","Angoli_after_Kalman",self.kalman_acc,self.kalman_orient)
         
     def applicateKalman(self):
         

@@ -11,7 +11,7 @@ class PositionalDatas1(PositionalData):
         self.getELA()
         self.identify_moving_periods(self.earthAcc)
         self.getPositionData(self.earthAcc,"PositionalData1")
-        self.plotGraphics("Accelerazione_terrestre","Angoli_di_Eulero",self.earthAcc,self.Orient)
+        #self.plotGraphics("Accelerazione_terrestre","Angoli_di_Eulero",self.earthAcc,self.Orient)
 
     # metodo che mi consente di ottenere l'accelerazione terrestre atraverso il prodotto matriacale delle matrici rotazionali (pitch,roll,yaw) e l'accelerazione lineare
     def getELA(self):

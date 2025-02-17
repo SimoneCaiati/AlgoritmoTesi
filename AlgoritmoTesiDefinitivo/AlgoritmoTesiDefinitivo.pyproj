@@ -38,6 +38,8 @@
     <Compile Include="Test\Test_PositionalDatas4.py" />
     <Compile Include="Test\Test_PositionalDatas5.py" />
     <Compile Include="Test\__init__.py" />
+    <Compile Include="UsefullModules\fromMbientlab.py" />
+    <Compile Include="UsefullModules\fromSensorLogger.py" />
     <Compile Include="UsefullModules\ProjectManager.py" />
     <Compile Include="UsefullModules\Visualizer.py" />
     <Compile Include="UsefullModules\__init__.py" />
