@@ -18,7 +18,7 @@ class PositionalDatas1(PositionalData):
         self.earthAcc=np.empty((len(self.timestamp),3))
         #print(f"vettore delta time:\n{self.delta_time}")
         #print(f"massimo valore di delta time:{self.delta_time[1:].max()} e minimo:{self.delta_time[1:].min()}")
-        print(f"Accelerazione prima:\n{self.Acc}")
+        #print(f"Accelerazione prima:\n{self.Acc}")
         for index in range(len(self.timestamp)):
             # matrice pitch rotazionale 
             matX = np.array([[1, 0, 0],
@@ -40,6 +40,6 @@ class PositionalDatas1(PositionalData):
 
             # Trasformazione dell'accelerazione nel sistema terrestre
             self.earthAcc[index] = matR @ self.Acc[index]
-        print(f"Accelerazione terrestre dopo:\n{self.earthAcc}")
+        #print(f"Accelerazione terrestre dopo:\n{self.earthAcc}")
 
 

@@ -31,7 +31,7 @@ class PositionalData:
         #print(f"massimo: {np.max(magnitudes)} media: {np.mean(magnitudes)} minimo: {np.min(magnitudes)}")
         
         for index in range(len(self.timestamp)):
-            print(np.sqrt(accelerazione[index].dot(self.Acc[index])))
+            #print(np.sqrt(accelerazione[index].dot(self.Acc[index])))
             self.is_moving[index] = np.sqrt(accelerazione[index].dot(accelerazione[index])) >= np.mean(magnitudes)-0.5  # threshold (0.5 è una tolleranza rispetto alla media)
 
         if self.sample_rate !=1:
@@ -54,14 +54,14 @@ class PositionalData:
             if self.is_moving[index]:
                 self.velocity[index]= self.velocity[index-1] + self.delta_time[index]* accelerazione[index]
                 
-        print(f"velocita:\n{self.velocity}")
+        #print(f"velocita:\n{self.velocity}")
                
         for index in range(len(self.timestamp)):
             if self.is_moving[index]:
                 self.position[index] =self.delta_time[index] * self.velocity[index] + (0.5*accelerazione[index]*(self.delta_time[index]**2)) # nella legge oraria andrebbe anche considerata la posizione iniziale 
             else:
                 self.position[index]=self.position[index-1]
-        print(f"Positional data:\n{self.position}")
+        #print(f"Positional data:\n{self.position}")
         PositionDataFrame=pd.DataFrame(self.position)
         self.visualizer.position=self.position.copy()                           # sovrascrivo il vettore posizione del visualizer, che è impostato a None di default 
         if not self.test:

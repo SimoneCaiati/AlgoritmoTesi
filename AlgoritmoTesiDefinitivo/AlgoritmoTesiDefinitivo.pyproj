@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>adc3cb8b-9e59-464d-b8a1-51bf934fd505</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>main.py</StartupFile>
+    <StartupFile>gui.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -23,6 +23,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="gui.py" />
     <Compile Include="main.py" />
     <Compile Include="PositionGetters\PositionalData.py" />
     <Compile Include="PositionGetters\PositionalDatas1.py" />
@@ -31,13 +32,16 @@
     <Compile Include="PositionGetters\PositionalDatas4.py" />
     <Compile Include="PositionGetters\PositionalDatas5.py" />
     <Compile Include="PositionGetters\__init__.py" />
+    <Compile Include="Test\Test_Integration.py" />
     <Compile Include="Test\Test_PositionalData.py" />
     <Compile Include="Test\Test_PositionalDatas1.py" />
     <Compile Include="Test\Test_PositionalDatas2.py" />
     <Compile Include="Test\Test_PositionalDatas3.py" />
     <Compile Include="Test\Test_PositionalDatas4.py" />
     <Compile Include="Test\Test_PositionalDatas5.py" />
+    <Compile Include="Test\Test_System.py" />
     <Compile Include="Test\__init__.py" />
+    <Compile Include="UsefullModules\fromArduino.py" />
     <Compile Include="UsefullModules\fromMbientlab.py" />
     <Compile Include="UsefullModules\fromSensorLogger.py" />
     <Compile Include="UsefullModules\ProjectManager.py" />
@@ -45,12 +49,32 @@
     <Compile Include="UsefullModules\__init__.py" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="Global|VisualStudio|AmbienteTesi" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="UsefullModules\" />
     <Folder Include="PositionGetters\" />
     <Folder Include="Test\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="..\..\TesiEnv\">
+      <Id>TesiEnv1</Id>
+      <Version>0.0</Version>
+      <Description>TesiEnv (Python 3.13 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
+    <Interpreter Include="..\..\TesiVenv\">
+      <Id>TesiVenv</Id>
+      <Version>3.11</Version>
+      <Description>TesiVenv (Python 3.11 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|VisualStudio|AmbienteTesi" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

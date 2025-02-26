@@ -1,13 +1,15 @@
+# -*- coding: utf-8 -*-
 from UsefullModules.fromMbientlab import prepare_data_MbientLab
 from UsefullModules.fromSensorLogger import prepare_data_SensorLogger
 from PositionGetters.PositionalDatas1 import PositionalDatas1 as pd1
 from PositionGetters.PositionalDatas2 import PositionalDatas2 as pd2
 from PositionGetters.PositionalDatas3 import PositionalDatas3 as pd3
 from PositionGetters.PositionalDatas4 import PositionalDatas4 as pd4
+from PositionGetters.PositionalDatas5 import PositionalDatas5 as pd5
 
 # Dati che possono variare: directory, file_index, sample_rate
-directory="MbientLab"
-file_index="dritto_destra1_mbientlab"
+directory="SensorLogger"
+file_index="9metri_dritto_destra"
 sample_rate=100
 
 if directory =="MbientLab":
@@ -44,3 +46,7 @@ p_d3.processData()
 p_d4 = pd4(timestamp, accelerometerData, orientationData, sample_rate, file_index, directory, False, magnetometerData, gyroscopeData, barometerData, p_d1.earthAcc)
 p_d4.file_manager.create_directories()
 p_d4.processData()
+# 5° BLOCCO
+p_d5 = pd5(timestamp, accelerometerData, orientationData, sample_rate, file_index, directory, False, magnetometerData, gyroscopeData, barometerData, p_d1.earthAcc, p_d2.ifft_signal,p_d1.position,p_d3.position)
+p_d5.file_manager.create_directories()
+p_d5.processData()

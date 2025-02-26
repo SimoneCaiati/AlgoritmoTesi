@@ -11,7 +11,10 @@ class PositionalDatas2(PositionalData):
         
     def processData(self):
         self.identify_moving_periods(self.Acc)
-        self.fastFourierTransform()
+        if self.test != True:
+            self.fastFourierTransform()
+        else:
+            self.fastFourierTransform_OnlyLow()
         self.getPositionData(self.ifft_signal,"PositionalData2")
         #self.plotGraphics("Accelerazione_after_IFFT","Angoli_di_Eulero",self.ifft_signal,self.Orient)
 
