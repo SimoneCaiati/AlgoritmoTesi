@@ -1,3 +1,4 @@
+from msilib.schema import Directory
 import numpy as np
 import os
 from PositionGetters.PositionalData import PositionalData 
@@ -20,22 +21,22 @@ class PositionalDatas4(PositionalData):
         self.timestamp = self.timestamp.reshape(-1, 1)
         dati = np.concatenate((self.timestamp, self.Acc, self.Gyro, self.Orient, self.Mag, self.Press), axis=1)
         if self.test == False:
-            nn = self.NeuralNetwork(dati, self.file_manager.mediaDir, self.file_index)
+            nn = self.NeuralNetwork(dati, self.file_manager.mediaDir, self.file_index, self.directory)
         else:
-            nn = self.NeuralNetwork(dati, self.file_manager.mediaDir, self.file_index)
+            nn = self.NeuralNetwork(dati, self.file_manager.mediaDir, self.file_index, self.directory)
             nn.y_paths=self.test_path
-        nn.train_model()
+        #nn.train_model()
         nn.predict_new_data()
         PositionDataFrame = pd.DataFrame(nn.predicted_y)
         self.file_manager.save_position_data(PositionDataFrame, "PositionalData4")
        
     class NeuralNetwork:
-        def __init__(self, test_X_path, media_path, file_index):
-            self.path_points="SensorLogger/Training"
-            self.path_data="SensorLogger/File_uniti"
+        def __init__(self, test_X_path, media_path, file_index, directory):
+            self.path_points=f"{directory}/Training"
+            self.path_data=f"{directory}/File_uniti"
             self.X_paths = [f"{self.path_data}/{file_index}.csv"]  # Lista dei path per X
             self.y_paths = [f"{self.path_points}/p_{file_index}_reconstructed.csv"]  # Lista dei path per Y
-            self.model_path = "SensorLogger/Training/trained_model.h5"  # Percorso per salvare il modello
+            self.model_path = f"{directory}/Training/trained_model.h5"  # Percorso per salvare il modello
             self.test_X_path = test_X_path  # Percorso del dataset di test X
             self.media_path = media_path
     
@@ -115,7 +116,7 @@ class PositionalDatas4(PositionalData):
             ax.legend()
             plt.title('Punti Predetti')
             plt.savefig(self.media_path + "/Predicted_points.png")
-            plt.show()
+            #plt.show()
             
 
 

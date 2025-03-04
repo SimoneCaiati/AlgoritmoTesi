@@ -14,9 +14,10 @@ def neural_network():
     Fixture per inizializzare la rete neurale e i percorsi dei dati di test.
     """
     return PositionalDatas4.NeuralNetwork(
-        test_X_path="SensorLogger/File_uniti/9metri_dritto_destra.csv",
+        test_X_path="SensorLogger/File_uniti/ADL4.csv",
         media_path="SensorLogger/MediaTest",
-        file_index="9metri_dritto_destra"
+        file_index="ADL4",
+        directory="SensorLogger"
     )
 
 def test_model_training_performance(neural_network):
@@ -32,7 +33,7 @@ def test_model_training_performance(neural_network):
 
     # Carica i dati di test da file CSV
     X_test = pd.read_csv(neural_network.test_X_path, delimiter=',', na_values=['']).replace(" ", "").dropna().to_numpy().astype(float)
-    y_test = pd.read_csv("SensorLogger/Training/p_9metri_dritto_destra_reconstructed.csv", delimiter=',', na_values=['']).replace(" ", "").dropna().to_numpy().astype(float)
+    y_test = pd.read_csv("SensorLogger/Training/p_ADL4_reconstructed.csv", delimiter=',', na_values=['']).replace(" ", "").dropna().to_numpy().astype(float)
 
     # Normalizzazione con i parametri di training
     scaler_X = RobustScaler()

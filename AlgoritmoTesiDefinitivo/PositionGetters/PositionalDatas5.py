@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from tensorflow import keras
 from sklearn.preprocessing import RobustScaler
+from sklearn.metrics import mean_absolute_error
 
 class PositionalDatas5(PositionalData):
     def __init__(self,timestamp,accelerometerData,orientationData,sample_rate,file_index,directory,test, magnetometerData, gyroscope, pressure, ELA, ifft, PD1, PD3):
@@ -20,19 +21,22 @@ class PositionalDatas5(PositionalData):
     def processData(self):
         self.timestamp = self.timestamp.reshape(-1, 1)
         dati = np.concatenate((self.timestamp, self.Acc, self.Gyro, self.Orient, self.Mag, self.Press, self.ELA, self.ifft, self.PD1, self.PD3), axis=1)
-        nn = self.NeuralNetwork(dati, self.file_manager.mediaDir, self.file_index)
-        nn.train_model()
-        nn.predict_new_data()
+        nn = self.NeuralNetwork(dati, self.file_manager.mediaDir, self.file_index, self.directory)
+        #nn.train_model()
+        mae, distanza = nn.predict_new_data()
         PositionDataFrame = pd.DataFrame(nn.predicted_y)
         self.file_manager.save_position_data(PositionDataFrame, "PositionalData5")
+        print(f"Tempo impiegato={self.timestamp[-1]}")
+        
+        return distanza
        
     class NeuralNetwork:
-        def __init__(self, test_X_path, media_path, file_index):
-            self.path_points="SensorLogger/Training"
-            self.path_data="SensorLogger/File_uniti"
-            self.X_paths = test_X_path  # Lista dei path per X
+        def __init__(self, test_X_path, media_path, file_index, directory):
+            self.path_points=f"{directory}/Training"
+            self.path_data=f"{directory}/File_uniti"
+            self.X_paths = [f"{self.path_data}/{file_index}.csv"]  # Lista dei path per X
             self.y_paths = [f"{self.path_points}/p_{file_index}_reconstructed.csv"]  # Lista dei path per Y
-            self.model_path = "SensorLogger/Training/trained_model_5.h5"  # Percorso per salvare il modello
+            self.model_path = f"{directory}/Training/trained_model_5.h5"  # Percorso per salvare il modello
             self.test_X_path = test_X_path  # Percorso del dataset di test X
             self.media_path = media_path
     
@@ -54,11 +58,11 @@ class PositionalDatas5(PositionalData):
     
         def train_model(self):
             # Carica dati da più dataset
-            X = self.X_paths
-            y = self.load_data(self.y_paths)
+            X = self.test_X_path
+            self.y = self.load_data(self.y_paths)
         
             # Preprocessing
-            X_scaled, y_scaled = self.preprocess_data(X, y)
+            X_scaled, y_scaled = self.preprocess_data(X, self.y)
         
             # Definizione della rete neurale
             input_layer = keras.layers.Input(shape=(X_scaled.shape[1],))
@@ -95,6 +99,21 @@ class PositionalDatas5(PositionalData):
             # Predizioni
             self.predicted_y = model.predict(X_test_scaled)
             self.predicted_y[self.predicted_y[:, 2] < 0.1, 2] = 0
+            
+            # Calcolo metriche
+            # mae = mean_absolute_error(self.y, self.predicted_y)
+
+            # Calcola la differenza tra punti consecutivi
+            differenze = np.diff(self.predicted_y, axis=0)
+    
+            # Calcola la distanza euclidea tra ogni coppia di punti consecutivi
+            distanze = np.linalg.norm(differenze, axis=1)
+    
+            # Somma tutte le distanze per ottenere la distanza totale percorsa
+            distanza_totale = np.sum(distanze)
+
+            # Stampa delle metriche per debugging
+            #print(f"Test Performance PD5: MAE={mae}, metri percorsi={distanza_totale}")
         
             # Plot dei risultati
             fig = plt.figure(figsize=(10, 7))
@@ -108,4 +127,10 @@ class PositionalDatas5(PositionalData):
             ax.legend()
             plt.title('Punti Predetti')
             plt.savefig(self.media_path + "/Predicted_points.png")
-            plt.show()
+            #plt.show()
+            
+            return 0, distanza_totale
+
+
+        
+            

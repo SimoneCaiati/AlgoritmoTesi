@@ -3,6 +3,25 @@ import pandas as pd
 import numpy as np
 from UsefullModules.ProjectManager import load_and_rename_csv
 
+def resample_dataframe(df_source, df_target, timestamp_col):
+    """
+    Adatta i Timestamp di df_source a quelli di df_target usando interpolazione lineare.
+    
+    :param df_source: DataFrame con i dati da riadattare
+    :param df_target: DataFrame con i Timestamp di riferimento
+    :param timestamp_col: Nome della colonna contenente i Timestamp
+    :return: DataFrame con i dati di df_source adattati ai Timestamp di df_target
+    """
+    # Imposta il timestamp come indice
+    df_source = df_source.set_index(timestamp_col)
+    
+    # Reindicizza il DataFrame di origine con i Timestamp del DataFrame target
+    df_resampled = df_source.reindex(sorted(df_target[timestamp_col]))
+    
+    # Interpola i valori mancanti per adattarli ai nuovi Timestamp
+    df_resampled = df_resampled.interpolate(method='linear').reset_index()
+    
+    return df_resampled
 
 def prepare_data_MbientLab(directory, file_index):
     path = f"{directory}/File_uniti/{file_index}.csv"
@@ -34,8 +53,11 @@ def prepare_data_MbientLab(directory, file_index):
             drop_cols="time"
         )
 
+         # Adattamento del dataset dell'accelerometro ai timestamp del giroscopio
+        fileAccelerometer = resample_dataframe(fileAccelerometer, fileGyroscope, 'Timestamp')
+        
         index = "Timestamp"
-
+        
         # Merge sequenziale dei file
         file_t1 = pd.merge(fileAccelerometer, fileGyroscope, on=index, how="outer")
         file_t2 = pd.merge(file_t1, fileOrientation, on=index, how="outer")
@@ -54,4 +76,5 @@ def prepare_data_MbientLab(directory, file_index):
         # Salvataggio del file finale
         fileData.to_csv(path, index=False)
 
-    return pd.read_csv(path, delimiter=',', na_values=['']).replace(" ", "").to_numpy().astype(float)
+    return pd.read_csv(path, delimiter=',', encoding="latin-1").replace(" ", "").to_numpy()
+
